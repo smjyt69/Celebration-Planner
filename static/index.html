@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Celebration Planner: weddings, birthdays and community events</title>
+  <meta name="description" content="Plan a wedding, birthday or community event with a smart budget, a realistic timeline, vendor checklists and personalised ideas.">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <h1>Celebration Planner</h1>
+    <p>Tell us about your event and get a budget, timeline, vendor checklist and ideas shaped around your situation.</p>
+  </header>
+
+  <main id="main">
+    <section aria-labelledby="form-heading" class="card">
+      <h2 id="form-heading">Your event</h2>
+      <form id="plan-form" novalidate>
+        <div class="grid">
+          <div class="field">
+            <label for="event_type">Event type</label>
+            <select id="event_type" name="event_type" required aria-describedby="err-event_type">
+              <option value="wedding">Wedding</option>
+              <option value="birthday">Birthday</option>
+              <option value="community">Community event</option>
+            </select>
+            <p class="error" id="err-event_type" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="title">Event name <span class="optional">(optional)</span></label>
+            <input id="title" name="title" type="text" maxlength="80" autocomplete="off" aria-describedby="err-title">
+            <p class="error" id="err-title" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="event_date">Event date</label>
+            <input id="event_date" name="event_date" type="date" required aria-describedby="err-event_date">
+            <p class="error" id="err-event_date" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="guests">Number of guests</label>
+            <input id="guests" name="guests" type="number" inputmode="numeric" min="1" max="5000" step="1" required aria-describedby="err-guests">
+            <p class="error" id="err-guests" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="budget">Total budget</label>
+            <input id="budget" name="budget" type="number" inputmode="numeric" min="1000" max="100000000" step="1" required aria-describedby="hint-budget err-budget">
+            <p class="hint" id="hint-budget">Whole number, at least 1,000.</p>
+            <p class="error" id="err-budget" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="currency">Currency</label>
+            <select id="currency" name="currency" aria-describedby="err-currency">
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+            </select>
+            <p class="error" id="err-currency" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="venue_type">Where will it be held?</label>
+            <select id="venue_type" name="venue_type" aria-describedby="err-venue_type">
+              <option value="indoor">Hall or indoor venue</option>
+              <option value="outdoor">Outdoor</option>
+              <option value="home">At home</option>
+            </select>
+            <p class="error" id="err-venue_type" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="vibe">Style</label>
+            <select id="vibe" name="vibe" aria-describedby="err-vibe">
+              <option value="modern">Modern</option>
+              <option value="traditional">Traditional</option>
+              <option value="minimal">Minimal and intimate</option>
+              <option value="fun">Fun and playful</option>
+            </select>
+            <p class="error" id="err-vibe" hidden></p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <fieldset aria-describedby="err-dietary">
+            <legend>Dietary needs</legend>
+            <label class="check"><input type="checkbox" name="dietary" value="vegetarian"> Vegetarian</label>
+            <label class="check"><input type="checkbox" name="dietary" value="vegan"> Vegan</label>
+            <label class="check"><input type="checkbox" name="dietary" value="jain"> Jain</label>
+            <label class="check"><input type="checkbox" name="dietary" value="halal"> Halal</label>
+            <label class="check"><input type="checkbox" name="dietary" value="gluten_free"> Gluten-free</label>
+            <p class="error" id="err-dietary" hidden></p>
+          </fieldset>
+
+          <fieldset aria-describedby="err-attendees">
+            <legend>Who is coming?</legend>
+            <label class="check"><input type="checkbox" name="attendees" value="kids"> Children</label>
+            <label class="check"><input type="checkbox" name="attendees" value="seniors"> Senior guests</label>
+            <p class="error" id="err-attendees" hidden></p>
+          </fieldset>
+        </div>
+
+        <div class="field">
+          <label for="interests">Interests to build the theme around <span class="optional">(optional)</span></label>
+          <input id="interests" name="interests" type="text" maxlength="200" autocomplete="off" aria-describedby="hint-interests err-interests">
+          <p class="hint" id="hint-interests">Up to 5, separated by commas, for example: music, food, cricket.</p>
+          <p class="error" id="err-interests" hidden></p>
+        </div>
+
+        <p class="error form-error" id="form-error" role="alert" hidden></p>
+        <button type="submit" class="primary" id="submit-btn">Create my plan</button>
+      </form>
+    </section>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+
+    <section id="results" class="results" aria-labelledby="results-heading" tabindex="-1" hidden>
+      <div class="results-head">
+        <h2 id="results-heading">Your plan</h2>
+        <button type="button" id="print-btn" class="secondary">Print or save as PDF</button>
+      </div>
+      <p id="summary" class="summary"></p>
+      <ul id="notes" class="notes" aria-label="Things to know"></ul>
+
+      <div class="progress-wrap">
+        <label for="progress">Checklist progress: <span id="progress-text"></span></label>
+        <progress id="progress" value="0" max="1"></progress>
+      </div>
+
+      <section class="card" aria-labelledby="budget-heading">
+        <h3 id="budget-heading">Budget split</h3>
+        <p id="budget-summary" class="hint"></p>
+        <table id="budget-table">
+          <caption class="sr-only">Budget allocation by category</caption>
+          <thead><tr><th scope="col">Category</th><th scope="col">Share</th><th scope="col" class="num">Amount</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="card" aria-labelledby="timeline-heading">
+        <h3 id="timeline-heading">Timeline</h3>
+        <p class="hint">Tick tasks off as you go. Your progress is saved in this browser.</p>
+        <ol id="timeline" class="checklist"></ol>
+      </section>
+
+      <section class="card" aria-labelledby="vendors-heading">
+        <h3 id="vendors-heading">Vendor checklist</h3>
+        <div id="vendors"></div>
+      </section>
+
+      <section class="card" aria-labelledby="ideas-heading">
+        <h3 id="ideas-heading">Ideas for your event</h3>
+        <ul id="ideas"></ul>
+        <button type="button" id="ai-ideas-btn" class="secondary">Get more ideas from the AI assistant</button>
+        <div id="ai-ideas" aria-live="polite"></div>
+      </section>
+
+      <section class="card" aria-labelledby="ask-heading">
+        <h3 id="ask-heading">Ask the planning assistant</h3>
+        <form id="ask-form" novalidate>
+          <div class="field">
+            <label for="question">Your question</label>
+            <textarea id="question" name="question" rows="3" maxlength="500" aria-describedby="err-question"></textarea>
+            <p class="error" id="err-question" hidden></p>
+          </div>
+          <button type="submit" class="primary" id="ask-btn">Ask</button>
+        </form>
+        <div id="answer" class="answer" aria-live="polite"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Plans are guidance based on typical costs and timelines. Always confirm prices and availability with your vendors.</p>
+  </footer>
+</body>
+</html>
