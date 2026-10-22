@@ -1,0 +1,17 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: celebration-planner
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # One worker keeps the in-memory rate limiter and LLM cache consistent; threads handle concurrency.
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 30
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: TRUST_PROXY        # Render sits behind a proxy; read the real client IP for rate limiting
+        value: "1"
+      - key: ANTHROPIC_API_KEY  # optional: set in the Render dashboard, never commit it
+        sync: false
