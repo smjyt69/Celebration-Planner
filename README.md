@@ -65,6 +65,14 @@ python wsgi.py                                         # http://127.0.0.1:5000
 Without a key, everything works except the AI-written ideas and answers, which fall back to the built-in engine.
 Production: `gunicorn wsgi:app` (set `TRUST_PROXY=1` only when behind a reverse proxy you control).
 
+### Deploy on Render
+
+1. Push this repo to GitHub (public, single `main` branch).
+2. In Render: **New > Blueprint**, select the repo. `render.yaml` configures everything (free plan, gunicorn, health check at `/healthz`, `TRUST_PROXY=1`).
+   Or create a **Web Service** manually: build `pip install -r requirements.txt`, start `gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --threads 4`, and set `TRUST_PROXY=1`.
+3. Optional: add `ANTHROPIC_API_KEY` under **Environment** in the dashboard to enable AI answers.
+4. Free instances sleep after about 15 minutes idle, so the first request after a pause can take up to a minute.
+
 ### Run the tests
 
 ```bash
