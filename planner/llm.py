@@ -18,8 +18,8 @@ from typing import Callable
 
 log = logging.getLogger(__name__)
 
-API_URL = "https://api.x.ai/v1/responses"
-
+API_URL = "https://api.anthropic.com/v1/messages"
+API_VERSION = "2023-06-01"
 MAX_RESPONSE_BYTES = 1_000_000
 
 SYSTEM_PROMPT = (
@@ -80,8 +80,10 @@ class LLMClient:
             if key in self._cache:
                 self._cache.move_to_end(key)
                 return self._cache[key]
-            headers = {"Authorization": f"Bearer {key}", "content-type": "application/json"}
-            body = {"model": "grok-4.7", "input": user_message} 
+        body = json.dumps({"model": self._model, "max_tokens": max_tokens, "system": SYSTEM_PROMPT,
+                           "messages": [{"role": "user", "content": user_message}]}).encode()
+        headers = {"x-api-key": self._api_key, "anthropic-version": API_VERSION,
+                   "content-type": "application/json"}
         try:
             payload = json.loads(self._transport(API_URL, headers, body, self._timeout))
             text = "".join(b.get("text", "") for b in payload["content"] if b.get("type") == "text").strip()

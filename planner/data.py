@@ -5,14 +5,16 @@ All benchmark numbers are illustrative heuristics (see README, "Assumptions").
 """
 from __future__ import annotations
 
-EVENT_TYPES = ("wedding", "birthday", "community")
-VENUE_TYPES = ("indoor", "outdoor", "home")
-VIBES = ("traditional", "modern", "minimal", "fun")
-DIETARY = ("vegetarian", "vegan", "jain", "halal", "gluten_free")
-ATTENDEES = ("kids", "seniors")
-CURRENCIES = {"INR": "₹", "USD": "$", "EUR": "€", "GBP": "£"}
+from .models import TimelineTemplate, VendorTemplate
 
-LABELS = {
+EVENT_TYPES: tuple[str, ...] = ("wedding", "birthday", "community")
+VENUE_TYPES: tuple[str, ...] = ("indoor", "outdoor", "home")
+VIBES: tuple[str, ...] = ("traditional", "modern", "minimal", "fun")
+DIETARY: tuple[str, ...] = ("vegetarian", "vegan", "jain", "halal", "gluten_free")
+ATTENDEES: tuple[str, ...] = ("kids", "seniors")
+CURRENCIES: dict[str, str] = {"INR": "₹", "USD": "$", "EUR": "€", "GBP": "£"}
+
+LABELS: dict[str, str] = {
     "sound_av": "Sound & AV",
     "permits_security": "Permits & security",
     "gifts": "Return gifts",
@@ -22,7 +24,7 @@ LABELS = {
 
 # Whole-number percentages; every row sums to 100 and contains the keys
 # venue, catering, decor, entertainment and contingency (the engine shifts money between them).
-BUDGET_WEIGHTS = {
+BUDGET_WEIGHTS: dict[str, dict[str, int]] = {
     "wedding": {
         "venue": 30, "catering": 30, "photography": 10, "decor": 8, "attire": 8,
         "entertainment": 5, "invitations": 2, "transport": 2, "contingency": 5,
@@ -38,15 +40,15 @@ BUDGET_WEIGHTS = {
 }
 
 # Minimum comfortable spend per guest, by currency then event type.
-MIN_PER_GUEST = {
+MIN_PER_GUEST: dict[str, dict[str, int]] = {
     "INR": {"wedding": 800, "birthday": 400, "community": 150},
     "USD": {"wedding": 40, "birthday": 20, "community": 8},
     "EUR": {"wedding": 40, "birthday": 20, "community": 8},
     "GBP": {"wedding": 35, "birthday": 18, "community": 7},
 }
 
-# (days_before_event, task, category, critical)
-TIMELINES = {
+# Compact rows: (days_before_event, task, category, critical)
+_TIMELINE_ROWS: dict[str, list[tuple[int, str, str, bool]]] = {
     "wedding": [
         (270, "Set the total budget and agree on priorities", "planning", True),
         (270, "Draft the core guest list and an approximate headcount", "planning", True),
@@ -99,8 +101,12 @@ TIMELINES = {
     ],
 }
 
+TIMELINES: dict[str, list[TimelineTemplate]] = {
+    event: [TimelineTemplate(*row) for row in rows] for event, rows in _TIMELINE_ROWS.items()
+}
+
 # category doubles as the budget key whenever a budget line with that name exists.
-VENDORS = {
+VENDORS: dict[str, list[VendorTemplate]] = {
     "wedding": [
         {"category": "venue", "vendor": "Venue / banquet hall", "skip_venue": ("home",),
          "ask": ["Is my date held in writing, and for how long?",
@@ -110,17 +116,20 @@ VENDORS = {
         {"category": "catering", "vendor": "Caterer",
          "ask": ["Can I taste the menu and get a per-plate price for my headcount?",
                  "What is the staff-to-guest ratio, and are crockery and service included?"],
-         "contract": ["Final headcount deadline and over/under-count policy", "Menu, quantities and live-counter list"]},
+         "contract": ["Final headcount deadline and over/under-count policy",
+                      "Menu, quantities and live-counter list"]},
         {"category": "photography", "vendor": "Photographer / videographer",
          "ask": ["How many hours and how many shooters are included?",
                  "When will edited photos and the film be delivered?"],
-         "contract": ["Deliverables, delivery dates and raw-file policy", "Backup plan if the photographer is unavailable"]},
+         "contract": ["Deliverables, delivery dates and raw-file policy",
+                      "Backup plan if the photographer is unavailable"]},
         {"category": "decor", "vendor": "Decorator / florist",
          "ask": ["Can you share a mood board and itemised quote for my theme?",
                  "Who handles setup and teardown, and by what time?"],
          "contract": ["Itemised list with quantities", "Substitution policy for flowers"]},
         {"category": "attire", "vendor": "Tailor / boutique / rental",
-         "ask": ["What are the fitting dates and the final delivery date?", "What is the alteration and return policy?"],
+         "ask": ["What are the fitting dates and the final delivery date?",
+                 "What is the alteration and return policy?"],
          "contract": ["Delivery date at least two weeks before the event"]},
         {"category": "entertainment", "vendor": "DJ / band / emcee",
          "ask": ["Can you share a sample setlist and the equipment you bring?", "What is your backup if you fall ill?"],
@@ -151,13 +160,16 @@ VENDORS = {
     ],
     "community": [
         {"category": "venue", "vendor": "Venue / ground owner", "skip_venue": ("home",),
-         "ask": ["What is the capacity, and are parking and washrooms available?", "Are there noise or closing-time limits?"],
+         "ask": ["What is the capacity, and are parking and washrooms available?",
+                 "Are there noise or closing-time limits?"],
          "contract": ["Permission letter, fee and damage-deposit terms"]},
         {"category": "permits_security", "vendor": "Permissions, security and first aid",
-         "ask": ["Which approvals are needed (local body, society, police, fire)?", "How many security and first-aid volunteers do we need?"],
+         "ask": ["Which approvals are needed (local body, society, police, fire)?",
+                 "How many security and first-aid volunteers do we need?"],
          "contract": ["Written approvals kept on site", "Emergency contact list"]},
         {"category": "sound_av", "vendor": "Sound, stage and lighting",
-         "ask": ["What equipment fits the venue size and number of performers?", "Do you provide a technician on site?"],
+         "ask": ["What equipment fits the venue size and number of performers?",
+                 "Do you provide a technician on site?"],
          "contract": ["Equipment list, setup time and power requirements"]},
         {"category": "catering", "vendor": "Caterer / food stalls",
          "ask": ["Can you serve my expected crowd within an hour?", "Which licences do you hold (food safety)?"],
@@ -172,7 +184,7 @@ VENDORS = {
 }
 
 # Context-driven vendors, appended to every event type when the condition applies.
-EXTRA_VENDORS = [
+EXTRA_VENDORS: list[VendorTemplate] = [
     {"category": "tent", "vendor": "Tent / shamiana and weather cover", "only_venue": ("outdoor",),
      "ask": ["Is the tent rated for wind and rain, and who is on call on the day?"],
      "contract": ["Setup and teardown times", "Weather-damage responsibility"]},
@@ -187,7 +199,7 @@ EXTRA_VENDORS = [
      "contract": ["Activity list, duration and first-aid cover"]},
 ]
 
-IDEAS = {
+IDEAS: dict[str, dict[str, list[str]]] = {
     "wedding": {
         "traditional": ["Marigold and mango-leaf mandap with brass lamps and a traditional welcome (aarti) for guests",
                         "Live shehnai or nadaswaram at the entrance, with a classical-fusion band for the evening",
@@ -232,7 +244,7 @@ IDEAS = {
     },
 }
 
-INTEREST_IDEAS = {
+INTEREST_IDEAS: dict[str, str] = {
     "music": "Curate a live playlist moment: a surprise live singer or a guest-request song wall",
     "food": "Add a regional street-food counter or a chef's special live station",
     "nature": "Use potted plants and seasonal flowers as decor and give saplings as favours",
@@ -245,7 +257,7 @@ INTEREST_IDEAS = {
     "dance": "Plan a choreographed family dance and an open dance-floor hour",
 }
 
-CONTEXT_IDEAS = {
+CONTEXT_IDEAS: dict[str, str] = {
     "kids": "Set up a supervised kids' corner with colouring, craft and a quiet area",
     "seniors": "Reserve comfortable seating near the stage and exits for elders, with a helper assigned",
     "dietary": "Label every dish with dietary tags so guests can self-serve confidently",

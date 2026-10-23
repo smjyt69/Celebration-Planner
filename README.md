@@ -43,14 +43,21 @@ Browser form ──POST /api/plan──▶ validation ──▶ engine ──▶
 
 ```
 planner/
-  __init__.py     Flask app factory: routes, rate limiter, security headers, error handling
+  __init__.py     create_app(): wires settings, LLM client, security, routes and error handlers
+  config.py       Settings dataclass, read once from the environment (immutable)
+  routes.py       Blueprint: pages, /healthz and the JSON API (thin: validate, call engine, respond)
+  security.py     Security headers (CSP etc.) and per-client throttling
+  ratelimit.py    Sliding-window RateLimiter (bounded memory)
   validation.py   Strict parsing of every input into an immutable PlanRequest
   engine.py       Pure functions: budget, timeline, vendors, ideas, notes, offline answers
+  models.py       TypedDict / NamedTuple shapes for the plan and templates
   data.py         All tunable content: weights, timelines, vendors, idea banks
   llm.py          Optional Anthropic Messages API client (stdlib only, cached, fails safe)
 static/           index.html, styles.css, app.js (no inline scripts or styles)
-tests/            76 tests: engine, validation, LLM client, API, security
+tests/            86 tests: engine, validation, config, rate limiter, LLM client, API, security
 wsgi.py           Entry point
+pyproject.toml    ruff, mypy and pytest configuration
+.github/workflows/ci.yml   Runs the tests on every push; lint and type checks run advisory
 ```
 
 ### Run it
@@ -73,10 +80,12 @@ Production: `gunicorn wsgi:app` (set `TRUST_PROXY=1` only when behind a reverse 
 3. Optional: add `ANTHROPIC_API_KEY` under **Environment** in the dashboard to enable AI answers.
 4. Free instances sleep after about 15 minutes idle, so the first request after a pause can take up to a minute.
 
-### Run the tests
+### Run the tests and checks
 
 ```bash
-python -m unittest discover -s tests -t .      # no extra packages needed
+python -m unittest discover -s tests -t .      # no extra packages needed (pytest also works)
+pip install -r requirements-dev.txt
+ruff check . && mypy                           # style and type checks (config in pyproject.toml)
 ```
 
 ### API
@@ -111,7 +120,7 @@ Event fields: `event_type` (wedding / birthday / community), `event_date` (YYYY-
 - Fully keyboard operable, visible focus rings, 44px touch targets, native `<details>` and `<progress>`.
 - Light/dark colour schemes with high-contrast palettes, no colour-only meaning, reduced-motion support, responsive layout and a print stylesheet.
 
-**Testing:** 76 `unittest` cases cover budget invariants (weights and amounts always sum correctly across every event / venue / affordability combination), timeline compression, vendor filtering, validation edge cases, API status codes, rate limiting, security headers, path traversal, prompt-injection handling, LLM failure fallback and caching.
+**Testing:** 86 `unittest` cases cover budget invariants (weights and amounts always sum correctly across every event / venue / affordability combination), timeline compression, vendor filtering, validation edge cases, API status codes, rate limiting, security headers, path traversal, prompt-injection handling, LLM failure fallback and caching.
 
 ## 5. Assumptions
 

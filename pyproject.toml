@@ -1,0 +1,23 @@
+# Tool configuration only (the app is deployed from requirements.txt).
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "S"]
+ignore = ["S101"]                      # asserts are fine in tests
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S"]                      # test data contains fake keys and sample strings
+
+[tool.mypy]
+python_version = "3.12"
+files = ["planner", "wsgi.py"]
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_return_any = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

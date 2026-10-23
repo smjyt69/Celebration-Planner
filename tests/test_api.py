@@ -3,7 +3,7 @@ import re
 import unittest
 from pathlib import Path
 
-from planner import RateLimiter, create_app
+from planner import create_app
 from tests.helpers import TODAY, payload
 from tests.test_llm import FakeTransport, reply
 
@@ -52,7 +52,7 @@ class PlanEndpointTests(unittest.TestCase):
         app = create_app({"TODAY": lambda: TODAY})
         app.config["TESTING"] = False
         app.config["PROPAGATE_EXCEPTIONS"] = False
-        app.view_functions["healthz"] = lambda: 1 / 0
+        app.view_functions["main.healthz"] = lambda: 1 / 0
         res = app.test_client().get("/healthz")
         self.assertEqual(res.status_code, 500)
         self.assertNotIn("division", res.get_data(as_text=True))
@@ -63,6 +63,15 @@ class PlanEndpointTests(unittest.TestCase):
         self.assertEqual(index.status_code, 200)
         self.assertIn(b"Celebration Planner", index.data)
         index.close()
+
+    def test_every_asset_linked_from_the_page_is_served(self):
+        html = self.client.get("/").get_data(as_text=True)
+        assets = re.findall(r'(?:href|src)="(/static/[^"]+)"', html)
+        self.assertGreaterEqual(len(assets), 3)          # stylesheet, script, favicon
+        for path in assets:
+            res = self.client.get(path)
+            self.assertEqual(res.status_code, 200, path)
+            res.close()
 
     def test_static_files_and_path_traversal(self):
         css = self.client.get("/static/styles.css")
@@ -97,26 +106,7 @@ class SecurityHeaderTests(unittest.TestCase):
             self.assertNotIn(banned, js)
 
 
-class RateLimitTests(unittest.TestCase):
-    def test_limiter_window(self):
-        now = [0.0]
-        limiter = RateLimiter(limit=2, window=10, clock=lambda: now[0])
-        self.assertTrue(limiter.allow("a"))
-        self.assertTrue(limiter.allow("a"))
-        self.assertFalse(limiter.allow("a"))
-        self.assertTrue(limiter.allow("b"))      # separate client
-        now[0] = 11.0
-        self.assertTrue(limiter.allow("a"))      # window slid
-
-    def test_limiter_bounds_memory(self):
-        now = [0.0]
-        limiter = RateLimiter(limit=1, window=1, clock=lambda: now[0], max_keys=5)
-        for i in range(5):
-            limiter.allow(str(i))
-        now[0] = 100.0
-        limiter.allow("fresh")
-        self.assertLessEqual(len(limiter._hits), 2)
-
+class RateLimitApiTests(unittest.TestCase):
     def test_api_returns_429_with_retry_after(self):
         client = client_for(RATE_LIMIT_PLAN=3)
         codes = [client.post("/api/plan", json=payload()).status_code for _ in range(5)]

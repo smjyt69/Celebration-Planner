@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import Any
 
 from .data import ATTENDEES, CURRENCIES, DIETARY, EVENT_TYPES, VENUE_TYPES, VIBES
 
@@ -44,7 +46,7 @@ def clean_text(value: str, max_len: int) -> str:
     return _CONTROL.sub("", value).strip()[:max_len]
 
 
-def _int_field(data: dict, name: str, lo: int, hi: int, errors: dict[str, str]) -> int:
+def _int_field(data: dict[str, Any], name: str, lo: int, hi: int, errors: dict[str, str]) -> int:
     raw = data.get(name)
     if isinstance(raw, float) and raw.is_integer():
         raw = int(raw)
@@ -57,7 +59,7 @@ def _int_field(data: dict, name: str, lo: int, hi: int, errors: dict[str, str]) 
     return raw
 
 
-def _choice(data: dict, name: str, choices, default: str, errors: dict[str, str]) -> str:
+def _choice(data: dict[str, Any], name: str, choices: Sequence[str], default: str, errors: dict[str, str]) -> str:
     raw = data.get(name, default)
     if not isinstance(raw, str) or raw not in choices:
         errors[name] = "Choose one of: " + ", ".join(choices) + "."
@@ -65,7 +67,7 @@ def _choice(data: dict, name: str, choices, default: str, errors: dict[str, str]
     return raw
 
 
-def _multi(data: dict, name: str, choices, errors: dict[str, str]) -> tuple[str, ...]:
+def _multi(data: dict[str, Any], name: str, choices: Sequence[str], errors: dict[str, str]) -> tuple[str, ...]:
     raw = data.get(name, [])
     if not isinstance(raw, list) or not all(isinstance(x, str) for x in raw):
         errors[name] = "Send a list of options."

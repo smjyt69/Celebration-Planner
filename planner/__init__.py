@@ -1,147 +1,73 @@
-"""Flask application factory: HTTP layer, validation hooks, rate limiting and security headers."""
+"""Celebration Planner: a Flask app with a deterministic planning engine and an optional AI layer."""
 from __future__ import annotations
 
-import os
-import threading
-import time
-from collections import defaultdict, deque
-from datetime import date
-from pathlib import Path
+from dataclasses import replace
+from typing import Any
 
-from flask import Flask, jsonify, request, send_from_directory
-from werkzeug.exceptions import HTTPException, UnsupportedMediaType
+from flask import Flask, Response, jsonify
+from werkzeug.exceptions import HTTPException
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-from .engine import answer_offline, build_plan
-from .llm import LLMClient, compact_context
-from .validation import ValidationError, parse_plan_request, parse_question
+from .config import Settings
+from .llm import LLMClient
+from .ratelimit import RateLimiter
+from .routes import bp
+from .security import register_security
+from .validation import ValidationError
 
-STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
-
-CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
-       "connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+__all__ = ["RateLimiter", "Settings", "create_app"]
 
 
-class RateLimiter:
-    """Sliding-window limiter, per client key. In-memory: fine for one process (see README)."""
+def create_app(overrides: dict[str, Any] | None = None) -> Flask:
+    """Build the application.
 
-    def __init__(self, limit: int, window: float, clock=time.monotonic, max_keys: int = 10_000):
-        self.limit, self.window, self._clock, self._max_keys = limit, window, clock, max_keys
-        self._hits: dict[str, deque] = defaultdict(deque)
-        self._lock = threading.Lock()
+    `overrides` replaces fields of `Settings` using the upper-case names the tests and
+    older callers use (for example `TODAY`, `ANTHROPIC_API_KEY`, `RATE_LIMIT_PLAN`).
+    """
+    settings = _apply_overrides(Settings.from_env(), overrides or {})
 
-    def allow(self, key: str) -> bool:
-        now = self._clock()
-        with self._lock:
-            if key not in self._hits and len(self._hits) >= self._max_keys:  # bound memory under many distinct clients
-                for k in [k for k, q in self._hits.items() if not q or now - q[-1] > self.window]:
-                    del self._hits[k]
-            q = self._hits[key]
-            while q and now - q[0] > self.window:
-                q.popleft()
-            if len(q) >= self.limit:
-                return False
-            q.append(now)
-            return True
-
-
-def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__, static_folder=None)
-    app.config.update(
-        MAX_CONTENT_LENGTH=16 * 1024,
-        TODAY=date.today,
-        LLM_TRANSPORT=None,
-        ANTHROPIC_API_KEY=os.environ.get("ANTHROPIC_API_KEY", ""),
-        ANTHROPIC_MODEL=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5"),
-        RATE_LIMIT_PLAN=60, RATE_LIMIT_AI=10, RATE_WINDOW=60,
-    )
-    if config:
-        app.config.update(config)
-    if os.environ.get("TRUST_PROXY") == "1":  # only enable behind a reverse proxy you control
-        from werkzeug.middleware.proxy_fix import ProxyFix
-        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
+    app.config["MAX_CONTENT_LENGTH"] = settings.max_body_bytes
+    app.extensions["settings"] = settings
+    app.extensions["llm"] = LLMClient(settings.anthropic_api_key, settings.anthropic_model,
+                                      settings.llm_transport)
+    if settings.trust_proxy:  # only behind a reverse proxy you control (e.g. Render)
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)  # type: ignore[method-assign]
 
-    llm = LLMClient(app.config["ANTHROPIC_API_KEY"], app.config["ANTHROPIC_MODEL"], app.config["LLM_TRANSPORT"])
-    app.extensions["llm"] = llm
-    limiters = {"plan": RateLimiter(app.config["RATE_LIMIT_PLAN"], app.config["RATE_WINDOW"]),
-                "ai": RateLimiter(app.config["RATE_LIMIT_AI"], app.config["RATE_WINDOW"])}
+    register_security(app, settings)
+    _register_error_handlers(app)
+    app.register_blueprint(bp)
+    return app
 
-    def today() -> date:
-        return app.config["TODAY"]()
 
-    def json_body() -> dict:
-        if not request.is_json:
-            raise UnsupportedMediaType("Send Content-Type: application/json.")
-        data = request.get_json(silent=True)
-        if not isinstance(data, dict):
-            raise ValidationError({"body": "Send a valid JSON object."})
-        return data
+_OVERRIDE_FIELDS = {
+    "TODAY": "today",
+    "ANTHROPIC_API_KEY": "anthropic_api_key",
+    "ANTHROPIC_MODEL": "anthropic_model",
+    "LLM_TRANSPORT": "llm_transport",
+    "RATE_LIMIT_PLAN": "rate_limit_plan",
+    "RATE_LIMIT_AI": "rate_limit_ai",
+    "RATE_WINDOW": "rate_window_seconds",
+    "MAX_CONTENT_LENGTH": "max_body_bytes",
+    "TRUST_PROXY": "trust_proxy",
+}
 
-    # ---- cross-cutting
-    @app.before_request
-    def throttle():
-        if request.path.startswith("/api/"):
-            bucket = "ai" if request.path in ("/api/ideas", "/api/ask") else "plan"
-            if not limiters[bucket].allow(request.remote_addr or "unknown"):
-                resp = jsonify(error="Too many requests. Please wait a moment.")
-                resp.status_code = 429
-                resp.headers["Retry-After"] = str(app.config["RATE_WINDOW"])
-                return resp
-        return None
 
-    @app.after_request
-    def secure(resp):
-        resp.headers["Content-Security-Policy"] = CSP
-        resp.headers["X-Content-Type-Options"] = "nosniff"
-        resp.headers["X-Frame-Options"] = "DENY"
-        resp.headers["Referrer-Policy"] = "no-referrer"
-        resp.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-        if request.path.startswith("/api/"):
-            resp.headers["Cache-Control"] = "no-store"
-        return resp
+def _apply_overrides(settings: Settings, overrides: dict[str, Any]) -> Settings:
+    unknown = set(overrides) - set(_OVERRIDE_FIELDS)
+    if unknown:
+        raise KeyError(f"Unknown setting(s): {', '.join(sorted(unknown))}")
+    return replace(settings, **{_OVERRIDE_FIELDS[k]: v for k, v in overrides.items()})
 
+
+def _register_error_handlers(app: Flask) -> None:
     @app.errorhandler(ValidationError)
-    def on_validation(err: ValidationError):
+    def on_validation(err: ValidationError) -> tuple[Response, int]:
         return jsonify(error="Please fix the highlighted fields.", fields=err.fields), 400
 
     @app.errorhandler(Exception)
-    def on_error(err: Exception):
+    def on_error(err: Exception) -> tuple[Response, int]:
         if isinstance(err, HTTPException):
-            return jsonify(error=err.name), err.code
-        app.logger.exception("Unhandled error")
+            return jsonify(error=err.name), err.code or 500
+        app.logger.exception("Unhandled error")  # details stay in the logs, never in the response
         return jsonify(error="Something went wrong on our side."), 500
-
-    # ---- pages
-    @app.get("/")
-    def index():
-        return send_from_directory(STATIC_DIR, "index.html")
-
-    @app.get("/static/<path:name>")
-    def static_files(name: str):
-        return send_from_directory(STATIC_DIR, name, max_age=3600)
-
-    @app.get("/healthz")
-    def healthz():
-        return jsonify(status="ok")
-
-    # ---- API
-    @app.post("/api/plan")
-    def api_plan():
-        body = json_body()
-        return jsonify(build_plan(parse_plan_request(body, today()), today()))
-
-    @app.post("/api/ideas")
-    def api_ideas():
-        body = json_body()
-        plan = build_plan(parse_plan_request(body, today()), today())
-        ai = llm.ideas(compact_context(plan)) if llm.enabled else None
-        return jsonify(ideas=plan["ideas"], ai_ideas=ai or [], ai_used=ai is not None)
-
-    @app.post("/api/ask")
-    def api_ask():
-        body = json_body()
-        question = parse_question(body.get("question"))
-        plan = build_plan(parse_plan_request(body, today()), today())
-        answer = llm.answer(question, compact_context(plan)) if llm.enabled else None
-        return jsonify(answer=answer or answer_offline(question, plan), source="ai" if answer else "offline")
-
-    return app
