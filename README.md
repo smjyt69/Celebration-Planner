@@ -1,6 +1,7 @@
 # Celebration Planner
 
 A GenAI-assisted planning assistant for **weddings, birthdays and community events**. Give it your date, guest count, budget and context, and it returns a budget split, a realistic timeline, a vendor checklist with questions to ask, and personalised ideas. You can then ask it follow-up questions in plain language.
+Deployed link: https://celebration-planner-sab7.onrender.com
 
 ## 1. Chosen vertical and persona
 
