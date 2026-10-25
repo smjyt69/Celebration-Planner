@@ -43,18 +43,23 @@ Browser form ──POST /api/plan──▶ validation ──▶ engine ──▶
 
 ```
 planner/
-  __init__.py     create_app(): wires settings, LLM client, security, routes and error handlers
+  __init__.py     create_app(settings): wires settings, LLM client, security, routes and error handlers
   config.py       Settings dataclass, read once from the environment (immutable)
   routes.py       Blueprint: pages, /healthz and the JSON API (thin: validate, call engine, respond)
   security.py     Security headers (CSP etc.) and per-client throttling
   ratelimit.py    Sliding-window RateLimiter (bounded memory)
-  validation.py   Strict parsing of every input into an immutable PlanRequest
+  validation.py   One small parser per field; collects every error in a single pass
   engine.py       Pure functions: budget, timeline, vendors, ideas, notes, offline answers
   models.py       TypedDict / NamedTuple shapes for the plan and templates
-  data.py         All tunable content: weights, timelines, vendors, idea banks
+  data.py         Loads and validates the content files at start-up (fails fast on bad content)
+  content/        budget.json, timelines.json, vendors.json, ideas.json: tune the plan without touching code
   llm.py          Optional Anthropic Messages API client (stdlib only, cached, fails safe)
-static/           index.html, styles.css, app.js (no inline scripts or styles)
-tests/            86 tests: engine, validation, config, rate limiter, LLM client, API, security
+static/
+  index.html, styles.css, favicon.svg
+  js/             ES modules: main (wiring), api, form, render, checklist, format, dom (no inline scripts)
+tests/            106 tests: engine, validation, content, config, rate limiter, LLM client, API, security
+scripts/          browser_check.py: optional real-browser end-to-end check (Playwright)
+docs/             VERIFICATION.md: how to re-run every check, with the output from the last run
 wsgi.py           Entry point
 pyproject.toml    ruff, mypy and pytest configuration
 .github/workflows/ci.yml   Runs the tests on every push; lint and type checks run advisory
@@ -84,6 +89,7 @@ Production: `gunicorn wsgi:app` (set `TRUST_PROXY=1` only when behind a reverse 
 
 ```bash
 python -m unittest discover -s tests -t .      # no extra packages needed (pytest also works)
+python scripts/browser_check.py                # optional: real-browser check (needs Playwright)
 pip install -r requirements-dev.txt
 ruff check . && mypy                           # style and type checks (config in pyproject.toml)
 ```
@@ -120,11 +126,11 @@ Event fields: `event_type` (wedding / birthday / community), `event_date` (YYYY-
 - Fully keyboard operable, visible focus rings, 44px touch targets, native `<details>` and `<progress>`.
 - Light/dark colour schemes with high-contrast palettes, no colour-only meaning, reduced-motion support, responsive layout and a print stylesheet.
 
-**Testing:** 86 `unittest` cases cover budget invariants (weights and amounts always sum correctly across every event / venue / affordability combination), timeline compression, vendor filtering, validation edge cases, API status codes, rate limiting, security headers, path traversal, prompt-injection handling, LLM failure fallback and caching.
+**Testing:** 106 `unittest` cases cover budget invariants (weights and amounts always sum correctly across every event / venue / affordability combination), timeline compression, vendor filtering, validation edge cases, API status codes, rate limiting, security headers, content-file validation, path traversal, prompt-injection handling, LLM failure fallback and caching.
 
 ## 5. Assumptions
 
-- **Benchmarks are heuristics.** The minimum spend per guest, budget percentages and lead times in `planner/data.py` are illustrative starting points, not market quotes. They are meant to be tuned.
+- **Benchmarks are heuristics.** The minimum spend per guest, budget percentages and lead times in `planner/content/*.json` are illustrative starting points, not market quotes. They are meant to be tuned.
 - **Seasonal advice assumes an Indian climate and wedding calendar** (monsoon June to September, peak wedding season November to February).
 - **Amounts are whole currency units**, and the app plans a single event (not multi-day ceremonies).
 - **No vendor names, prices or availability are invented.** The vendor list is a checklist of what to ask and agree in writing, not a directory.

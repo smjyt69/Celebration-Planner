@@ -1,0 +1,65 @@
+{
+  "weights": {
+    "wedding": {
+      "venue": 30,
+      "catering": 30,
+      "photography": 10,
+      "decor": 8,
+      "attire": 8,
+      "entertainment": 5,
+      "invitations": 2,
+      "transport": 2,
+      "contingency": 5
+    },
+    "birthday": {
+      "venue": 25,
+      "catering": 30,
+      "decor": 12,
+      "entertainment": 13,
+      "cake": 7,
+      "gifts": 5,
+      "invitations": 3,
+      "contingency": 5
+    },
+    "community": {
+      "venue": 20,
+      "catering": 25,
+      "sound_av": 15,
+      "decor": 8,
+      "publicity": 8,
+      "permits_security": 7,
+      "entertainment": 7,
+      "volunteers": 5,
+      "contingency": 5
+    }
+  },
+  "min_per_guest": {
+    "INR": {
+      "wedding": 800,
+      "birthday": 400,
+      "community": 150
+    },
+    "USD": {
+      "wedding": 40,
+      "birthday": 20,
+      "community": 8
+    },
+    "EUR": {
+      "wedding": 40,
+      "birthday": 20,
+      "community": 8
+    },
+    "GBP": {
+      "wedding": 35,
+      "birthday": 18,
+      "community": 7
+    }
+  },
+  "labels": {
+    "sound_av": "Sound & AV",
+    "permits_security": "Permits & security",
+    "gifts": "Return gifts",
+    "decor": "Decor & flowers",
+    "contingency": "Contingency buffer"
+  }
+}

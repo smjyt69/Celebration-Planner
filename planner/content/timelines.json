@@ -1,0 +1,272 @@
+{
+  "wedding": [
+    {
+      "days_before": 270,
+      "title": "Set the total budget and agree on priorities",
+      "category": "planning",
+      "critical": true
+    },
+    {
+      "days_before": 270,
+      "title": "Draft the core guest list and an approximate headcount",
+      "category": "planning",
+      "critical": true
+    },
+    {
+      "days_before": 240,
+      "title": "Shortlist and book the venue",
+      "category": "venue",
+      "critical": true
+    },
+    {
+      "days_before": 210,
+      "title": "Book photographer and videographer",
+      "category": "photography",
+      "critical": true
+    },
+    {
+      "days_before": 210,
+      "title": "Book the caterer",
+      "category": "catering",
+      "critical": true
+    },
+    {
+      "days_before": 180,
+      "title": "Book decorator / florist and share the theme",
+      "category": "decor",
+      "critical": false
+    },
+    {
+      "days_before": 150,
+      "title": "Order attire and schedule fittings",
+      "category": "attire",
+      "critical": false
+    },
+    {
+      "days_before": 120,
+      "title": "Book music: DJ, band and emcee",
+      "category": "entertainment",
+      "critical": false
+    },
+    {
+      "days_before": 120,
+      "title": "Plan guest accommodation and transport",
+      "category": "transport",
+      "critical": false
+    },
+    {
+      "days_before": 90,
+      "title": "Design and order invitations",
+      "category": "invitations",
+      "critical": true
+    },
+    {
+      "days_before": 60,
+      "title": "Send invitations and start RSVP tracking",
+      "category": "invitations",
+      "critical": true
+    },
+    {
+      "days_before": 45,
+      "title": "Menu tasting and final menu",
+      "category": "catering",
+      "critical": true
+    },
+    {
+      "days_before": 30,
+      "title": "Final fittings and accessories",
+      "category": "attire",
+      "critical": false
+    },
+    {
+      "days_before": 21,
+      "title": "Confirm every vendor in writing and share the run-of-show",
+      "category": "vendors",
+      "critical": true
+    },
+    {
+      "days_before": 14,
+      "title": "Lock seating plan and final headcount with the caterer",
+      "category": "catering",
+      "critical": true
+    },
+    {
+      "days_before": 7,
+      "title": "Pay vendor balances and prepare tips in envelopes",
+      "category": "budget",
+      "critical": true
+    },
+    {
+      "days_before": 3,
+      "title": "Rehearsal and an emergency kit (safety pins, first aid, chargers)",
+      "category": "logistics",
+      "critical": false
+    },
+    {
+      "days_before": 1,
+      "title": "Brief day-of coordinators and family helpers",
+      "category": "logistics",
+      "critical": true
+    },
+    {
+      "days_before": 0,
+      "title": "Event day: follow the run-of-show",
+      "category": "event",
+      "critical": true
+    }
+  ],
+  "birthday": [
+    {
+      "days_before": 45,
+      "title": "Set the budget and pick a theme",
+      "category": "planning",
+      "critical": true
+    },
+    {
+      "days_before": 45,
+      "title": "Draft the guest list",
+      "category": "planning",
+      "critical": true
+    },
+    {
+      "days_before": 35,
+      "title": "Book the venue or plan the home layout",
+      "category": "venue",
+      "critical": true
+    },
+    {
+      "days_before": 30,
+      "title": "Book the caterer or restaurant menu",
+      "category": "catering",
+      "critical": true
+    },
+    {
+      "days_before": 28,
+      "title": "Book entertainer, DJ or game host",
+      "category": "entertainment",
+      "critical": false
+    },
+    {
+      "days_before": 21,
+      "title": "Send invitations",
+      "category": "invitations",
+      "critical": true
+    },
+    {
+      "days_before": 14,
+      "title": "Order the cake and decor supplies",
+      "category": "cake",
+      "critical": true
+    },
+    {
+      "days_before": 10,
+      "title": "Plan games, playlist and return gifts",
+      "category": "gifts",
+      "critical": false
+    },
+    {
+      "days_before": 7,
+      "title": "Confirm RSVPs and vendors",
+      "category": "vendors",
+      "critical": true
+    },
+    {
+      "days_before": 3,
+      "title": "Give the caterer the final headcount",
+      "category": "catering",
+      "critical": true
+    },
+    {
+      "days_before": 1,
+      "title": "Set up decor and prepare food stations",
+      "category": "logistics",
+      "critical": false
+    },
+    {
+      "days_before": 0,
+      "title": "Party day",
+      "category": "event",
+      "critical": true
+    }
+  ],
+  "community": [
+    {
+      "days_before": 60,
+      "title": "Define purpose, audience and budget",
+      "category": "planning",
+      "critical": true
+    },
+    {
+      "days_before": 55,
+      "title": "Form a volunteer committee and assign roles",
+      "category": "volunteers",
+      "critical": true
+    },
+    {
+      "days_before": 50,
+      "title": "Apply for permissions (local authority, society, police if needed)",
+      "category": "permits_security",
+      "critical": true
+    },
+    {
+      "days_before": 45,
+      "title": "Book the venue and sound / AV",
+      "category": "venue",
+      "critical": true
+    },
+    {
+      "days_before": 40,
+      "title": "Secure sponsors or collect contributions",
+      "category": "budget",
+      "critical": false
+    },
+    {
+      "days_before": 35,
+      "title": "Book the caterer or arrange food stalls",
+      "category": "catering",
+      "critical": true
+    },
+    {
+      "days_before": 30,
+      "title": "Start publicity: posters, WhatsApp groups, social media",
+      "category": "publicity",
+      "critical": true
+    },
+    {
+      "days_before": 21,
+      "title": "Confirm performers or speakers and the programme schedule",
+      "category": "entertainment",
+      "critical": true
+    },
+    {
+      "days_before": 14,
+      "title": "Plan safety: first aid, crowd flow, parking and waste",
+      "category": "permits_security",
+      "critical": true
+    },
+    {
+      "days_before": 7,
+      "title": "Confirm vendors and brief volunteers",
+      "category": "vendors",
+      "critical": true
+    },
+    {
+      "days_before": 3,
+      "title": "Final walkthrough and equipment check",
+      "category": "logistics",
+      "critical": true
+    },
+    {
+      "days_before": 1,
+      "title": "Set up and run a sound check",
+      "category": "logistics",
+      "critical": false
+    },
+    {
+      "days_before": 0,
+      "title": "Event day",
+      "category": "event",
+      "critical": true
+    }
+  ]
+}

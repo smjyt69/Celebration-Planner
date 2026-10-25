@@ -14,7 +14,10 @@ import logging
 import threading
 import urllib.request
 from collections import OrderedDict
-from typing import Callable
+from collections.abc import Callable
+from typing import Any
+
+from .models import Plan
 
 log = logging.getLogger(__name__)
 
@@ -30,16 +33,19 @@ SYSTEM_PROMPT = (
     "prices or phone numbers."
 )
 
-Transport = Callable[[str, dict, bytes, float], bytes]
+Transport = Callable[[str, dict[str, str], bytes, float], bytes]
 
 
-def urllib_transport(url: str, headers: dict, body: bytes, timeout: float) -> bytes:
-    request = urllib.request.Request(url, data=body, headers=headers, method="POST")
-    with urllib.request.urlopen(request, timeout=timeout) as resp:  # noqa: S310 (fixed https URL)
-        return resp.read(MAX_RESPONSE_BYTES)
+def urllib_transport(url: str, headers: dict[str, str], body: bytes, timeout: float) -> bytes:
+    """POST `body` to `url` over HTTPS using the standard library and return the (size-capped) reply."""
+    if not url.startswith("https://"):
+        raise ValueError("Only https URLs are allowed")
+    request = urllib.request.Request(url, data=body, headers=headers, method="POST")  # noqa: S310
+    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
+        return bytes(response.read(MAX_RESPONSE_BYTES))
 
 
-def compact_context(plan: dict) -> dict:
+def compact_context(plan: Plan) -> dict[str, Any]:
     """Small, relevant slice of the plan. Keeps prompts cheap and avoids sending anything unnecessary."""
     s = plan["summary"]
     keys = ("event_type", "title", "event_date", "days_left", "guests", "budget", "currency",
@@ -52,7 +58,7 @@ def compact_context(plan: dict) -> dict:
     }
 
 
-def _context_json(context: dict) -> str:
+def _context_json(context: dict[str, Any]) -> str:
     return json.dumps(context, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
 
 
@@ -99,7 +105,7 @@ class LLMClient:
         return text
 
     # -- features
-    def ideas(self, context: dict) -> list[str] | None:
+    def ideas(self, context: dict[str, Any]) -> list[str] | None:
         prompt = (f"<planning_context>{_context_json(context)}</planning_context>\n"
                   "Suggest exactly 5 creative, personalised ideas for this event. "
                   "Reply with only a JSON array of 5 strings, each under 200 characters.")
@@ -116,7 +122,7 @@ class LLMClient:
         ideas = [x.strip()[:200] for x in parsed if isinstance(x, str) and x.strip()]
         return ideas[:6] or None
 
-    def answer(self, question: str, context: dict) -> str | None:
+    def answer(self, question: str, context: dict[str, Any]) -> str | None:
         prompt = (f"<planning_context>{_context_json(context)}</planning_context>\n"
                   f"<question>{html.escape(question, quote=False)}</question>\n"
                   "Answer the question in under 150 words.")

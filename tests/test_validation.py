@@ -1,7 +1,8 @@
 import unittest
 from datetime import timedelta
 
-from planner.validation import ValidationError, parse_plan_request, parse_question
+from planner.validation import (FieldError, ValidationError, int_between, iso_date, many_of, one_of,
+                                optional_text, parse_plan_request, parse_question, phrases)
 from tests.helpers import TODAY, payload
 
 
@@ -90,6 +91,62 @@ class QuestionTests(unittest.TestCase):
         for bad in (None, 42, "", "  ", "hi", ["a"]):
             with self.assertRaises(ValidationError):
                 parse_question(bad)
+
+
+class FieldParserTests(unittest.TestCase):
+    def test_int_between(self) -> None:
+        parse = int_between(1, 10)
+        self.assertEqual((parse(1), parse(10), parse(5.0)), (1, 10, 5))
+        for bad in (0, 11, 2.5, "3", None, True):
+            with self.assertRaises(FieldError, msg=repr(bad)):
+                parse(bad)
+
+    def test_one_of(self) -> None:
+        parse = one_of(("a", "b"))
+        self.assertEqual(parse("a"), "a")
+        for bad in ("c", "", None, ["a"], 1):
+            with self.assertRaises(FieldError, msg=repr(bad)):
+                parse(bad)
+
+    def test_many_of_normalises_and_deduplicates(self) -> None:
+        parse = many_of(("gluten_free", "vegan"))
+        self.assertEqual(parse(["Gluten-Free", "VEGAN", "vegan", "none", ""]), ("gluten_free", "vegan"))
+        self.assertEqual(parse([]), ())
+        for bad in (["pizza"], "vegan", [1], None):
+            with self.assertRaises(FieldError, msg=repr(bad)):
+                parse(bad)
+
+    def test_iso_date_boundaries(self) -> None:
+        parse = iso_date(TODAY)
+        self.assertEqual(parse(TODAY.isoformat()), TODAY)
+        last_day = TODAY + timedelta(days=5 * 366)
+        self.assertEqual(parse(last_day.isoformat()), last_day)
+        for bad in ((TODAY - timedelta(days=1)).isoformat(), (last_day + timedelta(days=1)).isoformat(),
+                    "2026-02-30", "26-1-1", None, 20261201):
+            with self.assertRaises(FieldError, msg=repr(bad)):
+                parse(bad)
+
+    def test_optional_text(self) -> None:
+        parse = optional_text(5, "must be text")
+        self.assertEqual((parse(None), parse("  ab\x00cdefg  ")), ("", "abcde"))
+        with self.assertRaisesRegex(FieldError, "must be text"):
+            parse(12)
+
+    def test_phrases(self) -> None:
+        parse = phrases(max_items=3, max_len=4)
+        # blanks are dropped, long phrases truncated, then duplicates collapsed
+        self.assertEqual(parse([" abcdef ", "", "abcd", "xy"]), ("abcd", "xy"))
+        with self.assertRaises(FieldError):          # the limit applies to non-blank entries
+            parse(["a", "b", "c", "d"])
+        with self.assertRaises(FieldError):
+            parse("a")
+
+    def test_every_invalid_field_is_reported_in_one_pass(self) -> None:
+        with self.assertRaises(ValidationError) as ctx:
+            parse_plan_request({"event_type": "x", "event_date": "nope", "budget": 1, "guests": 0,
+                                "currency": "JPY", "dietary": ["pizza"], "title": 5, "interests": "a"}, TODAY)
+        self.assertEqual(set(ctx.exception.fields),
+                         {"event_type", "event_date", "budget", "guests", "currency", "dietary", "title", "interests"})
 
 
 if __name__ == "__main__":

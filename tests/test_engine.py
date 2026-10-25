@@ -8,6 +8,11 @@ from planner.engine import (adjust_weights, answer_offline, build_budget, build_
 from tests.helpers import TODAY, make_request
 
 
+def shares(budget):
+    """Map budget category -> percentage share."""
+    return {line["category"]: line["percent"] for line in budget["lines"]}
+
+
 class BudgetTests(unittest.TestCase):
     def test_templates_sum_to_100_and_have_shared_keys(self):
         for event, weights in BUDGET_WEIGHTS.items():
@@ -25,19 +30,19 @@ class BudgetTests(unittest.TestCase):
         for event, budget, guests in itertools.product(EVENT_TYPES, (1_000, 12_345, 99_999, 1_000_003), (1, 37, 400)):
             req = make_request(event_type=event, budget=budget, guests=guests)
             lines = build_budget(req)["lines"]
-            self.assertEqual(sum(l["amount"] for l in lines), budget)
+            self.assertEqual(sum(line["amount"] for line in lines), budget)
             self.assertEqual(lines[-1]["category"], "contingency")
 
     def test_home_venue_moves_money_from_venue_to_food_and_decor(self):
-        indoor = {l["category"]: l["percent"] for l in build_budget(make_request(venue_type="indoor"))["lines"]}
-        home = {l["category"]: l["percent"] for l in build_budget(make_request(venue_type="home"))["lines"]}
+        indoor = shares(build_budget(make_request(venue_type="indoor")))
+        home = shares(build_budget(make_request(venue_type="home")))
         self.assertEqual(home["venue"], 5)
         self.assertGreater(home["catering"], indoor["catering"])
         self.assertGreater(home["decor"], indoor["decor"])
 
     def test_outdoor_adds_weather_contingency(self):
-        indoor = {l["category"]: l["percent"] for l in build_budget(make_request(venue_type="indoor"))["lines"]}
-        outdoor = {l["category"]: l["percent"] for l in build_budget(make_request(venue_type="outdoor"))["lines"]}
+        indoor = shares(build_budget(make_request(venue_type="indoor")))
+        outdoor = shares(build_budget(make_request(venue_type="outdoor")))
         self.assertEqual(outdoor["contingency"], indoor["contingency"] + 3)
 
     def test_tight_budget_is_flagged_and_prioritises_catering(self):
@@ -45,14 +50,15 @@ class BudgetTests(unittest.TestCase):
         roomy = build_budget(make_request(budget=2_000_000, guests=200))
         self.assertTrue(tight["tight"])
         self.assertFalse(roomy["tight"])
-        share = lambda b: next(l["percent"] for l in b["lines"] if l["category"] == "catering")
-        self.assertGreater(share(tight), share(roomy))
+        self.assertGreater(shares(tight)["catering"], shares(roomy)["catering"])
         self.assertEqual(tight["guests_supported"], 62)
 
     def test_currency_changes_the_affordability_threshold(self):
         # 100 per guest is fine for a USD birthday but not for a wedding in INR.
-        self.assertFalse(build_budget(make_request(event_type="birthday", currency="USD", budget=10_000, guests=100))["tight"])
-        self.assertTrue(build_budget(make_request(event_type="wedding", currency="INR", budget=10_000, guests=100))["tight"])
+        birthday_usd = make_request(event_type="birthday", currency="USD", budget=10_000, guests=100)
+        wedding_inr = make_request(event_type="wedding", currency="INR", budget=10_000, guests=100)
+        self.assertFalse(build_budget(birthday_usd)["tight"])
+        self.assertTrue(build_budget(wedding_inr)["tight"])
 
 
 class TimelineTests(unittest.TestCase):
@@ -128,7 +134,8 @@ class VendorTests(unittest.TestCase):
         req = make_request()
         budget = build_budget(req)
         venue = next(v for v in build_vendors(req, budget) if v["category"] == "venue")
-        self.assertEqual(venue["budget"], next(l["amount"] for l in budget["lines"] if l["category"] == "venue"))
+        venue_line = next(line for line in budget["lines"] if line["category"] == "venue")
+        self.assertEqual(venue["budget"], venue_line["amount"])
 
 
 class IdeasAndNotesTests(unittest.TestCase):

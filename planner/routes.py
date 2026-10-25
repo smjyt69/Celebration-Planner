@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from flask import Blueprint, Response, current_app, jsonify, request, send_from_directory
 from werkzeug.exceptions import UnsupportedMediaType
@@ -19,11 +19,11 @@ bp = Blueprint("main", __name__)
 
 
 def _settings() -> Settings:
-    return current_app.extensions["settings"]
+    return cast(Settings, current_app.extensions["settings"])
 
 
 def _llm() -> LLMClient:
-    return current_app.extensions["llm"]
+    return cast(LLMClient, current_app.extensions["llm"])
 
 
 def _json_body() -> dict[str, Any]:

@@ -1,0 +1,88 @@
+{
+  "by_style": {
+    "wedding": {
+      "traditional": [
+        "Marigold and mango-leaf mandap with brass lamps and a traditional welcome (aarti) for guests",
+        "Live shehnai or nadaswaram at the entrance, with a classical-fusion band for the evening",
+        "Regional banana-leaf feast with a handwritten menu card at every table"
+      ],
+      "modern": [
+        "Pastel floral arches with a minimalist stage and warm fairy-light canopy",
+        "A live illustrator sketching the couple and guests as keepsakes",
+        "Signature mocktail bar named after the couple's inside jokes"
+      ],
+      "minimal": [
+        "Intimate ceremony with seasonal flowers in clay pots and candlelit tables",
+        "Single-colour palette with printed vows as favours",
+        "Brunch-style reception to cut venue and catering cost"
+      ],
+      "fun": [
+        "Photo-booth wall with props and an instant-print station",
+        "Dance-floor games and a surprise flash-mob from friends",
+        "Guest 'advice jar' cards read out at the reception"
+      ]
+    },
+    "birthday": {
+      "traditional": [
+        "Rangoli welcome at the door with a home-style thali and sweets",
+        "Family blessing ritual before cake-cutting",
+        "Classic games: antakshari, musical chairs and pass-the-parcel"
+      ],
+      "modern": [
+        "Colour-block balloon garland with a dessert table and neon sign",
+        "Polaroid memory wall where guests leave a note",
+        "Build-your-own pizza or taco station"
+      ],
+      "minimal": [
+        "Small dinner with a handwritten menu and a single statement cake",
+        "Picnic-style gathering with blankets and potted plants",
+        "Memory jar of wishes from each guest"
+      ],
+      "fun": [
+        "Treasure hunt with riddles leading to the cake",
+        "Karaoke battle with homemade trophies",
+        "Costume or themed dress-up with a prize for the best one"
+      ]
+    },
+    "community": {
+      "traditional": [
+        "Cultural evening with local folk performances and a shared meal",
+        "Rangoli and craft competition for neighbours",
+        "Lamp-lighting ceremony to open the event"
+      ],
+      "modern": [
+        "Pop-up market for local makers and home bakers",
+        "Open-mic stage with a simple sign-up QR code",
+        "Live-streamed highlights for members who cannot attend"
+      ],
+      "minimal": [
+        "Potluck gathering with a simple programme and one keynote",
+        "Neighbourhood clean-up followed by tea and snacks",
+        "Storytelling circle for elders and children"
+      ],
+      "fun": [
+        "Inter-lane sports day with relay races and tug-of-war",
+        "Quiz night with team names and small prizes",
+        "Food-stall challenge where families vote for their favourite dish"
+      ]
+    }
+  },
+  "interests": {
+    "music": "Curate a live playlist moment: a surprise live singer or a guest-request song wall",
+    "food": "Add a regional street-food counter or a chef's special live station",
+    "nature": "Use potted plants and seasonal flowers as decor and give saplings as favours",
+    "sports": "Set up a friendly tournament corner (carrom, cricket, badminton) with small prizes",
+    "art": "Invite a live painter or set up a collaborative canvas guests can add to",
+    "travel": "Decorate tables as places the guest of honour has visited, with passport-style programmes",
+    "movies": "Use a favourite film as the theme, with a short slideshow or a movie-poster backdrop",
+    "books": "Create a book swap or reading nook and give bookmarks as favours",
+    "tech": "Run a QR-code photo wall or a digital guestbook guests can scan",
+    "dance": "Plan a choreographed family dance and an open dance-floor hour"
+  },
+  "context": {
+    "kids": "Set up a supervised kids' corner with colouring, craft and a quiet area",
+    "seniors": "Reserve comfortable seating near the stage and exits for elders, with a helper assigned",
+    "dietary": "Label every dish with dietary tags so guests can self-serve confidently",
+    "outdoor": "Use lanterns and warm string lights for evening ambience, plus a shaded seating area"
+  }
+}

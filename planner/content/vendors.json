@@ -1,0 +1,281 @@
+{
+  "by_event": {
+    "wedding": [
+      {
+        "category": "venue",
+        "vendor": "Venue / banquet hall",
+        "skip_venue": [
+          "home"
+        ],
+        "ask": [
+          "Is my date held in writing, and for how long?",
+          "What are the rain and power-backup plans and the overtime rate?",
+          "Are outside caterers and decorators allowed (any corkage or ground fees)?"
+        ],
+        "contract": [
+          "Total fee, taxes and refundable deposit",
+          "Cancellation and date-change terms"
+        ]
+      },
+      {
+        "category": "catering",
+        "vendor": "Caterer",
+        "ask": [
+          "Can I taste the menu and get a per-plate price for my headcount?",
+          "What is the staff-to-guest ratio, and are crockery and service included?"
+        ],
+        "contract": [
+          "Final headcount deadline and over/under-count policy",
+          "Menu, quantities and live-counter list"
+        ]
+      },
+      {
+        "category": "photography",
+        "vendor": "Photographer / videographer",
+        "ask": [
+          "How many hours and how many shooters are included?",
+          "When will edited photos and the film be delivered?"
+        ],
+        "contract": [
+          "Deliverables, delivery dates and raw-file policy",
+          "Backup plan if the photographer is unavailable"
+        ]
+      },
+      {
+        "category": "decor",
+        "vendor": "Decorator / florist",
+        "ask": [
+          "Can you share a mood board and itemised quote for my theme?",
+          "Who handles setup and teardown, and by what time?"
+        ],
+        "contract": [
+          "Itemised list with quantities",
+          "Substitution policy for flowers"
+        ]
+      },
+      {
+        "category": "attire",
+        "vendor": "Tailor / boutique / rental",
+        "ask": [
+          "What are the fitting dates and the final delivery date?",
+          "What is the alteration and return policy?"
+        ],
+        "contract": [
+          "Delivery date at least two weeks before the event"
+        ]
+      },
+      {
+        "category": "entertainment",
+        "vendor": "DJ / band / emcee",
+        "ask": [
+          "Can you share a sample setlist and the equipment you bring?",
+          "What is your backup if you fall ill?"
+        ],
+        "contract": [
+          "Hours, overtime rate and sound-limit compliance"
+        ]
+      },
+      {
+        "category": "invitations",
+        "vendor": "Printer / e-invite designer",
+        "ask": [
+          "What is the turnaround and the proofing process?"
+        ],
+        "contract": [
+          "Final proof sign-off before printing"
+        ]
+      },
+      {
+        "category": "transport",
+        "vendor": "Transport / guest accommodation",
+        "ask": [
+          "Is there a group rate, and what is the cancellation window?"
+        ],
+        "contract": [
+          "Pick-up schedule and vehicle count"
+        ]
+      }
+    ],
+    "birthday": [
+      {
+        "category": "venue",
+        "vendor": "Party venue / hall",
+        "skip_venue": [
+          "home"
+        ],
+        "ask": [
+          "What is the capacity and what time must we vacate?",
+          "Is outside food and a cake allowed?"
+        ],
+        "contract": [
+          "Deposit, cancellation terms and any cleaning fee"
+        ]
+      },
+      {
+        "category": "catering",
+        "vendor": "Caterer / restaurant",
+        "ask": [
+          "What is the per-plate price and the minimum headcount?",
+          "Do you serve kids' portions and snacks?"
+        ],
+        "contract": [
+          "Final headcount deadline",
+          "Menu and serving time"
+        ]
+      },
+      {
+        "category": "cake",
+        "vendor": "Baker (cake)",
+        "ask": [
+          "Is an eggless / sugar-free option available?",
+          "Who handles delivery and what is the time slot?"
+        ],
+        "contract": [
+          "Design, size, flavour and delivery time confirmed in writing"
+        ]
+      },
+      {
+        "category": "decor",
+        "vendor": "Decorator / balloon artist",
+        "ask": [
+          "Can you work within my theme and budget?",
+          "How long does setup take?"
+        ],
+        "contract": [
+          "Itemised quote and setup time"
+        ]
+      },
+      {
+        "category": "entertainment",
+        "vendor": "Entertainer / DJ / game host",
+        "ask": [
+          "What age group do you suit, and how long is the act?"
+        ],
+        "contract": [
+          "Duration, travel charges and cancellation terms"
+        ]
+      }
+    ],
+    "community": [
+      {
+        "category": "venue",
+        "vendor": "Venue / ground owner",
+        "skip_venue": [
+          "home"
+        ],
+        "ask": [
+          "What is the capacity, and are parking and washrooms available?",
+          "Are there noise or closing-time limits?"
+        ],
+        "contract": [
+          "Permission letter, fee and damage-deposit terms"
+        ]
+      },
+      {
+        "category": "permits_security",
+        "vendor": "Permissions, security and first aid",
+        "ask": [
+          "Which approvals are needed (local body, society, police, fire)?",
+          "How many security and first-aid volunteers do we need?"
+        ],
+        "contract": [
+          "Written approvals kept on site",
+          "Emergency contact list"
+        ]
+      },
+      {
+        "category": "sound_av",
+        "vendor": "Sound, stage and lighting",
+        "ask": [
+          "What equipment fits the venue size and number of performers?",
+          "Do you provide a technician on site?"
+        ],
+        "contract": [
+          "Equipment list, setup time and power requirements"
+        ]
+      },
+      {
+        "category": "catering",
+        "vendor": "Caterer / food stalls",
+        "ask": [
+          "Can you serve my expected crowd within an hour?",
+          "Which licences do you hold (food safety)?"
+        ],
+        "contract": [
+          "Quantity, price per plate and serving window"
+        ]
+      },
+      {
+        "category": "publicity",
+        "vendor": "Printer / social media volunteer",
+        "ask": [
+          "What is the print turnaround for posters and banners?"
+        ],
+        "contract": [
+          "Quantities and delivery date"
+        ]
+      },
+      {
+        "category": "entertainment",
+        "vendor": "Performers / speakers",
+        "ask": [
+          "What is the time slot, fee (if any) and technical needs?"
+        ],
+        "contract": [
+          "Confirmed schedule and backup performer"
+        ]
+      }
+    ]
+  },
+  "extra": [
+    {
+      "category": "tent",
+      "vendor": "Tent / shamiana and weather cover",
+      "only_venue": [
+        "outdoor"
+      ],
+      "ask": [
+        "Is the tent rated for wind and rain, and who is on call on the day?"
+      ],
+      "contract": [
+        "Setup and teardown times",
+        "Weather-damage responsibility"
+      ]
+    },
+    {
+      "category": "power",
+      "vendor": "Generator / power backup",
+      "only_venue": [
+        "outdoor"
+      ],
+      "ask": [
+        "What load does your generator carry and is a technician included?"
+      ],
+      "contract": [
+        "Fuel, noise limits and refuelling plan"
+      ]
+    },
+    {
+      "category": "accessibility",
+      "vendor": "Accessible seating and ramps",
+      "only_attendee": "seniors",
+      "ask": [
+        "Are there step-free entry, reserved seating near exits and a quiet rest area?"
+      ],
+      "contract": [
+        "Reserved front-row seating and accessible washroom access"
+      ]
+    },
+    {
+      "category": "kids_safety",
+      "vendor": "Kids' activity host / safety",
+      "only_attendee": "kids",
+      "ask": [
+        "Is the host safety-trained, and what is the adult-to-child ratio?"
+      ],
+      "contract": [
+        "Activity list, duration and first-aid cover"
+      ]
+    }
+  ]
+}

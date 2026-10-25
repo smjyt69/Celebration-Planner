@@ -1,9 +1,6 @@
 """Celebration Planner: a Flask app with a deterministic planning engine and an optional AI layer."""
 from __future__ import annotations
 
-from dataclasses import replace
-from typing import Any
-
 from flask import Flask, Response, jsonify
 from werkzeug.exceptions import HTTPException
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -18,13 +15,9 @@ from .validation import ValidationError
 __all__ = ["RateLimiter", "Settings", "create_app"]
 
 
-def create_app(overrides: dict[str, Any] | None = None) -> Flask:
-    """Build the application.
-
-    `overrides` replaces fields of `Settings` using the upper-case names the tests and
-    older callers use (for example `TODAY`, `ANTHROPIC_API_KEY`, `RATE_LIMIT_PLAN`).
-    """
-    settings = _apply_overrides(Settings.from_env(), overrides or {})
+def create_app(settings: Settings | None = None) -> Flask:
+    """Build the application. With no argument, settings are read from the environment."""
+    settings = settings or Settings.from_env()
 
     app = Flask(__name__, static_folder=None)
     app.config["MAX_CONTENT_LENGTH"] = settings.max_body_bytes
@@ -38,26 +31,6 @@ def create_app(overrides: dict[str, Any] | None = None) -> Flask:
     _register_error_handlers(app)
     app.register_blueprint(bp)
     return app
-
-
-_OVERRIDE_FIELDS = {
-    "TODAY": "today",
-    "ANTHROPIC_API_KEY": "anthropic_api_key",
-    "ANTHROPIC_MODEL": "anthropic_model",
-    "LLM_TRANSPORT": "llm_transport",
-    "RATE_LIMIT_PLAN": "rate_limit_plan",
-    "RATE_LIMIT_AI": "rate_limit_ai",
-    "RATE_WINDOW": "rate_window_seconds",
-    "MAX_CONTENT_LENGTH": "max_body_bytes",
-    "TRUST_PROXY": "trust_proxy",
-}
-
-
-def _apply_overrides(settings: Settings, overrides: dict[str, Any]) -> Settings:
-    unknown = set(overrides) - set(_OVERRIDE_FIELDS)
-    if unknown:
-        raise KeyError(f"Unknown setting(s): {', '.join(sorted(unknown))}")
-    return replace(settings, **{_OVERRIDE_FIELDS[k]: v for k, v in overrides.items()})
 
 
 def _register_error_handlers(app: Flask) -> None:
