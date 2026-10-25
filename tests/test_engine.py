@@ -3,8 +3,16 @@ import unittest
 from datetime import date, timedelta
 
 from planner.data import BUDGET_WEIGHTS, EVENT_TYPES, TIMELINES, VENUE_TYPES
-from planner.engine import (adjust_weights, answer_offline, build_budget, build_ideas, build_plan,
-                            build_timeline, build_vendors, season_notes)
+from planner.engine import (
+    adjust_weights,
+    answer_offline,
+    build_budget,
+    build_ideas,
+    build_plan,
+    build_timeline,
+    build_vendors,
+    season_notes,
+)
 from tests.helpers import TODAY, make_request
 
 

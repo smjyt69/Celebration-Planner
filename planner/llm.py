@@ -47,14 +47,25 @@ def urllib_transport(url: str, headers: dict[str, str], body: bytes, timeout: fl
 
 def compact_context(plan: Plan) -> dict[str, Any]:
     """Small, relevant slice of the plan. Keeps prompts cheap and avoids sending anything unnecessary."""
-    s = plan["summary"]
-    keys = ("event_type", "title", "event_date", "days_left", "guests", "budget", "currency",
-            "venue_type", "vibe", "dietary", "attendees", "interests")
+    summary = plan["summary"]
     return {
-        "event": {k: s[k] for k in keys},
+        "event": {
+            "event_type": summary["event_type"],
+            "title": summary["title"],
+            "event_date": summary["event_date"],
+            "days_left": summary["days_left"],
+            "guests": summary["guests"],
+            "budget": summary["budget"],
+            "currency": summary["currency"],
+            "venue_type": summary["venue_type"],
+            "vibe": summary["vibe"],
+            "dietary": summary["dietary"],
+            "attendees": summary["attendees"],
+            "interests": summary["interests"],
+        },
         "budget": {line["category"]: line["amount"] for line in plan["budget"]["lines"]},
-        "notes": [n["text"] for n in plan["notes"]],
-        "next_tasks": [f"{t['title']} (due {t['due_date']})" for t in plan["timeline"]["tasks"][:5]],
+        "notes": [note["text"] for note in plan["notes"]],
+        "next_tasks": [f"{task['title']} (due {task['due_date']})" for task in plan["timeline"]["tasks"][:5]],
     }
 
 

@@ -7,8 +7,18 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from .data import (BUDGET_WEIGHTS, CONTEXT_IDEAS, CURRENCIES, EXTRA_VENDORS, IDEAS, INTEREST_IDEAS,
-                   LABELS, MIN_PER_GUEST, TIMELINES, VENDORS)
+from .data import (
+    BUDGET_WEIGHTS,
+    CONTEXT_IDEAS,
+    CURRENCIES,
+    EXTRA_VENDORS,
+    IDEAS,
+    INTEREST_IDEAS,
+    LABELS,
+    MIN_PER_GUEST,
+    TIMELINES,
+    VENDORS,
+)
 from .models import Budget, BudgetLine, Note, Plan, Task, Timeline, Vendor, VendorTemplate
 from .validation import PlanRequest
 

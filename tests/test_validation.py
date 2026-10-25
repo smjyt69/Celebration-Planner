@@ -1,8 +1,18 @@
 import unittest
 from datetime import timedelta
 
-from planner.validation import (FieldError, ValidationError, int_between, iso_date, many_of, one_of,
-                                optional_text, parse_plan_request, parse_question, phrases)
+from planner.validation import (
+    FieldError,
+    ValidationError,
+    int_between,
+    iso_date,
+    many_of,
+    one_of,
+    optional_text,
+    parse_plan_request,
+    parse_question,
+    phrases,
+)
 from tests.helpers import TODAY, payload
 
 
